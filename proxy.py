@@ -22,6 +22,11 @@ async def forward(request: Request, base_url: str, path: str, auth_header: str, 
     )
 
     headers = {k: v for k, v in request.headers.items() if k.lower() not in _HOP_BY_HOP}
+    # ASGI headers are lowercase, so a plain `headers[auth_header] = auth_value` (auth_header is
+    # mixed-case, e.g. "Authorization") would add a second, differently-cased key rather than
+    # replace the caller's own auth header — httpx then sends both on the wire, which upstream
+    # (an IIS-fronted API) rejects outright as a malformed request. Drop any case-variant first.
+    headers = {k: v for k, v in headers.items() if k.lower() != auth_header.lower()}
     headers[auth_header] = auth_value
 
     upstream = await client.request(

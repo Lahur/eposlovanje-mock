@@ -1,0 +1,44 @@
+# Builds the root Dockerfile and pushes it to the Cloudfleet Container
+# Registry.
+#
+# Configure these in CircleCI project settings (Project Settings >
+# Environment Variables):
+#   CF_ORG_ID      - Cloudfleet organization id
+#   CFCR_REGION    - Cloudfleet container registry region (e.g. europe)
+#   CF_TOKEN_ID    - see `cloudfleet tokens create` (Administrator role)
+#   CF_TOKEN_SECRET
+version: 2.1
+
+jobs:
+  build-and-push:
+    docker:
+      - image: cimg/base:current
+    environment:
+      IMAGE: eposlovanje-mock
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Login to CFCR
+          command: |
+            echo $CF_TOKEN_SECRET | docker login $CF_ORG_ID.$CFCR_REGION.registry.cloudfleet.dev \
+              --username $CF_TOKEN_ID --password-stdin
+      - run:
+          name: Build image
+          command: |
+            docker build -f Dockerfile \
+              -t $CF_ORG_ID.$CFCR_REGION.registry.cloudfleet.dev/$IMAGE:$CIRCLE_SHA1 .
+      - run:
+          name: Push image
+          command: |
+            docker push $CF_ORG_ID.$CFCR_REGION.registry.cloudfleet.dev/$IMAGE:$CIRCLE_SHA1
+            if [ "$CIRCLE_BRANCH" == "main" ]; then
+              docker tag $CF_ORG_ID.$CFCR_REGION.registry.cloudfleet.dev/$IMAGE:$CIRCLE_SHA1 \
+                $CF_ORG_ID.$CFCR_REGION.registry.cloudfleet.dev/$IMAGE:latest
+              docker push $CF_ORG_ID.$CFCR_REGION.registry.cloudfleet.dev/$IMAGE:latest
+            fi
+
+workflows:
+  build:
+    jobs:
+      - build-and-push

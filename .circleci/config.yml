@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Create .env file
           command: |
-            cat > .env <<EOF
+            cat > .env \<<EOF
             EPOSLOVANJE_BASE_URL=$EPOSLOVANJE_BASE_URL
             EPOSLOVANJE_API_KEY=$EPOSLOVANJE_API_KEY
             PONDI_BASE_URL=$PONDI_BASE_URL

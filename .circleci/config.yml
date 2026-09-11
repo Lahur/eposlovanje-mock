@@ -3,10 +3,14 @@
 #
 # Configure these in CircleCI project settings (Project Settings >
 # Environment Variables):
-#   CF_ORG_ID      - Cloudfleet organization id
-#   CFCR_REGION    - Cloudfleet container registry region (e.g. europe)
-#   CF_TOKEN_ID    - see `cloudfleet tokens create` (Administrator role)
+#   CF_ORG_ID            - Cloudfleet organization id
+#   CFCR_REGION          - Cloudfleet container registry region (e.g. europe)
+#   CF_TOKEN_ID          - see `cloudfleet tokens create` (Administrator role)
 #   CF_TOKEN_SECRET
+#   EPOSLOVANJE_BASE_URL
+#   EPOSLOVANJE_API_KEY
+#   PONDI_BASE_URL
+#   PONDI_API_KEY
 version: 2.1
 
 jobs:
@@ -17,6 +21,15 @@ jobs:
       IMAGE: eposlovanje-mock
     steps:
       - checkout
+      - run:
+          name: Create .env file
+          command: |
+            cat > .env <<EOF
+            EPOSLOVANJE_BASE_URL=$EPOSLOVANJE_BASE_URL
+            EPOSLOVANJE_API_KEY=$EPOSLOVANJE_API_KEY
+            PONDI_BASE_URL=$PONDI_BASE_URL
+            PONDI_API_KEY=$PONDI_API_KEY
+            EOF
       - setup_remote_docker
       - run:
           name: Login to CFCR

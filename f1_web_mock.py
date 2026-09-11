@@ -21,7 +21,10 @@ _PLACEHOLDER_PDF = (
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    # Naive (no UTC offset) on purpose: every timestamp this mock hands back — issueDateTime,
+    # fiscalizedAt, storno's credit-note issueDateTime, ... — needs to round-trip through Java's
+    # LocalDateTime.parse() on the caller's side, which rejects an offset/zone suffix outright.
+    return datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
 
 def _tax_rate_display(rate: float) -> str:

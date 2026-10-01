@@ -7,7 +7,8 @@ RUN pip install --no-cache-dir pipenv
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --system --ignore-pipfile
 
-COPY main.py config.py proxy.py f1_web_mock.py .env ./
+COPY main.py config.py proxy.py f1_web_mock.py ais_mock.py .env ./
+COPY ais_fixtures ./ais_fixtures
 
 EXPOSE 8082
 

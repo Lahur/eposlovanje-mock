@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from prometheus_fastapi_instrumentator import Instrumentator
 
 import config
+from ais_mock import router as ais_router
 from f1_web_mock import router as f1_web_router
 from proxy import forward
 
@@ -27,6 +28,7 @@ async def log_requests(request: Request, call_next):
 
 
 app.include_router(f1_web_router, prefix="/f1-web", tags=["f1-web (mock)"])
+app.include_router(ais_router, prefix="/ais", tags=["ais (mock)"])
 
 
 @app.api_route("/eposlovanje/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
@@ -47,6 +49,7 @@ def read_root():
             "/eposlovanje/*": f"proxied to {config.EPOSLOVANJE_BASE_URL}",
             "/pondi/*": f"proxied to {config.PONDI_BASE_URL}",
             "/f1-web/*": "in-memory mock (not proxied)",
+            "/ais/*": "in-memory mock of ais.eposlovanje.hr (not proxied)",
         },
     }
 
